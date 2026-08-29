@@ -1,0 +1,6 @@
+{
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "schema_mode": "native",
+  "started": "2026-08-29T17:53:21+00:00"
+}

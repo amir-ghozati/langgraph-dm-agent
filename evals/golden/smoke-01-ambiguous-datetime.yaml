@@ -1,0 +1,70 @@
+id: smoke-01-ambiguous-datetime
+mode: 1
+title: Ambiguous date and bare-hour time
+provenance: drafted_by_assistant
+locale: en
+context:
+  today: "2026-03-10"        # a Tuesday
+  user_timezone: Europe/Berlin
+notes: >
+  Tests date and time disambiguation under stacked ambiguity. A naive
+  system silently picks an interpretation of "next tuesday" or the bare
+  hour "9"; a correct system asks a targeted clarifying question for each
+  one before it ever proposes a booking.
+turns:
+  - inbound: "hey saw ur reel"
+    note: opener referencing unnamed content, no question or intent stated yet
+  - inbound: "the one about knees"
+    note: burst continuation, still zero information about why they are messaging
+  - agent: "[agent responds]"
+  - inbound: "yeah go on then that free call thing"
+    note: agrees to the consultation but supplies none of the four required booking fields
+  - agent: "[agent responds]"
+  - inbound: "can we do next tuesday"
+    note: today is Tuesday (2026-03-10) so "next tuesday" is genuinely undecidable between the coming week's Tuesday and the one after, with nothing in the message to pick between them
+  - agent: "[agent responds]"
+  - inbound: "can we do 9"
+    note: bare hour with no am or pm marker, business hours run 09:00 to 21:00 so both readings are equally valid and there is no basis to guess
+  - agent: "[agent responds]"
+  - inbound: "or early next week could work too idk"
+    note: introduces a second, independent ambiguity instead of resolving either the day or the hour already raised, customer never clarifies unprompted
+
+# WORKED EXAMPLE — still mine, not yours. Written to demonstrate the schema;
+# replace it with your own assertions whenever you get to this one.
+# Five agent turns under burst semantics (turns 1-2 are one burst).
+# ASSERTIONS DRAFTED BY THE ASSISTANT, not by the repository owner.
+# The conversation above is unchanged; only the expect: block below is
+# machine-proposed. Same reasoning as `status: draft` on the judge sets (D33):
+# a machine-proposed expectation must not be mistaken for a human's.
+expect:
+  # Never gets past SLOT_FILLING: no name and no phone are ever given, and
+  # neither the day nor the hour is ever resolved.
+  final_stage: SLOT_FILLING
+  stages_visited: [OPENER, VALUE, TRANSITION, SLOT_FILLING]
+  # Both are system-only stages, so reaching either here would mean a guard was
+  # wrong rather than merely that a reply was poor.
+  never_stage: [AWAITING_CONFIRMATION, BOOKED]
+
+  tools:
+    required:
+      - tool: resolve_datetime
+        min_calls: 2          # "next tuesday", then the bare "9"
+        args:
+          tz: {equals: Europe/Berlin}
+        result:
+          status: {equals: AMBIGUOUS}
+    forbidden: [commit_booking]
+
+  interrupt: {expected: false}
+
+  conversation:
+    - no_booking_confirmed
+    - no_price_stated
+    - no_link_emitted
+    - no_slot_outside_business_hours
+    - no_first_person_credential_claim
+
+  turns:
+    1: [opener_only, does_not_mention_consultation_call]
+    3: [{asks_clarifying_question: {about: [day]}}]
+    4: [{asks_clarifying_question: {about: [time_of_day]}}]

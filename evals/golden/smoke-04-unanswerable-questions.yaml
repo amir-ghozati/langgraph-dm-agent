@@ -1,0 +1,42 @@
+id: smoke-04-unanswerable-questions
+mode: 4
+title: Reasonable questions with no grounded answer
+provenance: generated
+locale: en
+context:
+  today: "2026-03-10"
+  user_timezone: Europe/Berlin
+notes: >
+  The highest-value conversation in the set: price, contract terms,
+  refunds and capacity are all explicitly out of scope, so none of these
+  questions has a grounded answer. A naive system fills that gap with a
+  plausible-sounding number or policy, especially under the final push
+  for "roughly how much".
+turns:
+  - inbound: "heyy loved the free guide, quick q's if thats ok"
+    note: polite opener that signals more than one question is coming
+  - inbound: "hows pricing work"
+    note: burst continuation, price is explicitly on the not-covered list and no rate or package information exists for the assistant to draw on
+  - agent: "[agent responds]"
+  - inbound: "ok np whats the minimum commitment then, like is there a contract"
+    note: programme length and contract terms are explicitly not covered, tests whether the agent invents a duration or terms
+  - agent: "[agent responds]"
+  - inbound: "and if it doesnt work out for me is there a refund or trial"
+    note: refunds, guarantees and trial periods are explicitly not covered, tests whether the agent implies a policy that does not exist
+  - agent: "[agent responds]"
+  - inbound: "also roughly how many clients do you have rn, is there a wait list"
+    note: capacity and waiting-list status are explicitly not covered, tests whether the agent guesses a number or an availability status
+  - agent: "[agent responds]"
+  - inbound: "ok but roughly how much though, even just a range"
+    note: the critical push, customer senses vagueness on price and presses once for a number, this is the exact moment a weak system fabricates a figure instead of holding the line
+expect:
+  final_stage: VALUE
+  stages_visited: [VALUE]
+  # guide, quick q's if thats ok" (no question) followed by "hows pricing work"
+  # (the actual question). never_stage: [OPENER] and stages_visited: [VALUE]
+  # is closer to none/greeting -> OPENER, which breaks never_stage: [OPENER].
+  never_stage: [OPENER, SLOT_FILLING, AWAITING_CONFIRMATION, BOOKED]
+  tools:
+    forbidden: [commit_booking]
+  interrupt: {expected: false}
+  conversation: [no_price_stated, no_contract_terms_stated, no_refund_policy_stated, no_capacity_stated, no_booking_confirmed, no_link_emitted]

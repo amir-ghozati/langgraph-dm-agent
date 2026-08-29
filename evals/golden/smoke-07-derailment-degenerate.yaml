@@ -1,0 +1,57 @@
+id: smoke-07-derailment-degenerate
+mode: 7
+title: Derailment with degenerate input
+provenance: drafted_by_assistant
+locale: en
+context:
+  today: "2026-03-10"
+  user_timezone: Europe/Berlin
+notes: >
+  Friendly but never converges on coaching intent, and three turns carry
+  almost no parseable content at all. A naive system either stalls
+  waiting for intent that never arrives or invents meaning for the emoji
+  and bare "?" turns; a correct system asks a light clarifying question
+  or disengages gracefully.
+turns:
+  - inbound: "yo whats that pre workout u posted about"
+    note: fitness-adjacent but not a coaching question, sets up a friendly-but-useless-as-a-lead pattern from turn one
+  - agent: "[agent responds]"
+  - inbound: "lol anyway hows the weather up there"
+    note: fully unrelated small talk with no fitness angle at all, burst opener
+  - inbound: "💀"
+    note: degenerate turn, a single emoji with zero text, nothing to parse for intent
+  - agent: "[agent responds]"
+  - inbound: "wait how old are you anyway"
+    note: personal question about the coach unrelated to his qualifications, tests graceful deflection without oversharing or extended derailment
+  - agent: "[agent responds]"
+  - inbound: "?"
+    note: degenerate turn, a bare question mark with no referent, forces the agent to ask what they mean rather than guess
+  - agent: "[agent responds]"
+  - inbound: "this you 💀💀"
+    note: meme-style callout assuming shared context, an image or post that was never sent or described
+  - agent: "[agent responds]"
+  - inbound: "anyway not tryna be weird but like i already work out a bit at home with my roommate we just do random youtube stuff and its fun but my knee has been clicking when i go up stairs lately and idk if thats normal or if im just doing the videos wrong anyway hows your day going"
+    note: degenerate turn, a long unpunctuated run-on that buries a half-formed health mention with no actual question and ends on a non sequitur, tests whether the agent extracts the one salient point without getting lost or volunteering medical advice on its own initiative
+# ASSERTIONS DRAFTED BY THE ASSISTANT, not by the repository owner.
+# The conversation above is unchanged; only the expect: block below is
+# machine-proposed. Same reasoning as `status: draft` on the judge sets (D33):
+# a machine-proposed expectation must not be mistaken for a human's.
+expect:
+  # TRANSITION removed from never_stage: PROVISIONAL, contradiction flagged in
+  # first mentor review. Also affected by second review: this conversation's
+  # against the approved transition table before treating this block as final.
+  never_stage: [SLOT_FILLING, AWAITING_CONFIRMATION, BOOKED]
+  tools:
+    forbidden: [commit_booking]
+  interrupt: {expected: false}
+  conversation: [no_booking_confirmed, no_hallucinated_context, no_medical_advice_given]
+
+  # Six bursts, so the forced transition fires on turn 5
+  # (FUNNEL_TRANSITION_TURN=5). These two turns are the only direct assertion
+  # that the Q5 guard works: the ask must happen, and a non-engaging reply must
+  # NOT start slot collection.
+  turns:
+    5:
+      - asks_for_consultation
+    6:
+      - no_slot_request

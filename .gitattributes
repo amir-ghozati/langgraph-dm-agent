@@ -1,0 +1,5 @@
+# One line ending everywhere. scripts/acceptance.sh runs inside a Linux
+# container; a CRLF checkout on Windows makes bash fail on the shebang.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

@@ -1,0 +1,66 @@
+# Every command below is a separate OS process. Each exits before the next
+# starts, so the conversation survives five process deaths, not a simulated one.
+
+$ python -m app.cli turn --user lead-1788020583 "hey saw ur reel"
+lead   hey saw ur reel
+coach  Hey! If you had to pick one fitness goal right now, what would it be? 🙂
+stage=OPENER turn=1
+
+$ python -m app.cli turn --user lead-1788020583 "just wanna lose a bit of weight"
+lead   just wanna lose a bit of weight
+coach  Got it 👍 what would you like to focus on first?
+stage=VALUE turn=2
+
+$ python -m app.cli turn --user lead-1788020583 "can i book that free call"
+lead   can i book that free call
+coach  Happy to get you booked in for the free call 📅 what's your name?
+stage=TRANSITION turn=3
+
+$ python -m app.cli turn --user lead-1788020583 "im dan"
+lead   im dan
+coach  Great 👍 could you send your name as well?
+stage=SLOT_FILLING turn=4
+
+$ python -m app.cli turn --user lead-1788020583 "0341 9876543"
+lead   0341 9876543
+coach  Great 👍 could you send your phone as well?
+stage=SLOT_FILLING turn=5
+
+# --- process killed. nothing in memory survives. ---
+
+$ python -m app.cli snapshot --user lead-1788020583
+conversation 0487dba3-fa89-47d6-933b-161106e84af3
+  stage              SLOT_FILLING
+  agent turns sent   5
+  next turn index    6
+                             slots                              
+┌───────┬──────────────┬───────┬─────────┬──────────┬──────────┐
+│ slot  │ raw          │ value │ status  │ error    │ attempts │
+├───────┼──────────────┼───────┼─────────┼──────────┼──────────┤
+│ name  │ Dan          │ Dan   │ valid   │ -        │ 1        │
+│ phone │ 0341 9876543 │ -     │ invalid │ landline │ 1        │
+│ day   │ -            │ -     │ empty   │ -        │ 0        │
+│ time  │ -            │ -     │ empty   │ -        │ 0        │
+└───────┴──────────────┴───────┴─────────┴──────────┴──────────┘
+
+# The conversation resumes at turn 6, from the tables, not the checkpointer.
+
+$ python -m app.cli turn --user lead-1788020583 "sorry its 0151 23456789"
+lead   sorry its 0151 23456789
+coach  Great 👍 could you send your phone as well?
+stage=SLOT_FILLING turn=6
+
+$ python -m app.cli snapshot --user lead-1788020583
+conversation 0487dba3-fa89-47d6-933b-161106e84af3
+  stage              SLOT_FILLING
+  agent turns sent   6
+  next turn index    7
+                                slots                                 
+┌───────┬───────────────┬────────────────┬────────┬───────┬──────────┐
+│ slot  │ raw           │ value          │ status │ error │ attempts │
+├───────┼───────────────┼────────────────┼────────┼───────┼──────────┤
+│ name  │ Dan           │ Dan            │ valid  │ -     │ 1        │
+│ phone │ 0151 23456789 │ +4915123456789 │ valid  │ -     │ 2        │
+│ day   │ -             │ -              │ empty  │ -     │ 0        │
+│ time  │ -             │ -              │ empty  │ -     │ 0        │
+└───────┴───────────────┴────────────────┴────────┴───────┴──────────┘

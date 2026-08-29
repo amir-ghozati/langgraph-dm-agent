@@ -1,0 +1,61 @@
+[project]
+name = "muster-dm-agent"
+version = "0.1.0"
+description = "LangGraph port of a production n8n Instagram DM sales agent"
+requires-python = ">=3.12"
+
+dependencies = [
+    "langgraph==1.2.11",
+    "langgraph-checkpoint-postgres==3.1.2",
+    "google-genai==2.20.0",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.15.0",
+    "sqlalchemy[asyncio]==2.0.52",
+    "alembic==1.19.1",
+    "psycopg[binary,pool]==3.3.4",
+    "typer==0.27.1",
+    "rich==15.0.0",
+    "structlog==26.1.0",
+    "tenacity==9.1.4",
+    "pyyaml==6.0.3",
+    "phonenumbers==9.0.38",
+    "fastapi==0.121.2",
+    "uvicorn==0.41.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.16.4",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "evals*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RUF", "BLE"]
+ignore = ["B008"]  # typer uses function calls in argument defaults by design
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/*" = ["E501"]
+# ruff reads an UPPER_CASE name as a literal, so `assert CONSTANT == {...}`
+# trips SIM300. Subject-first is the readable order in a test assertion.
+"tests/*" = ["SIM300"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning:app.*"]
+markers = [
+    "db: requires a live Postgres (set TEST_DATABASE_URL)",
+    "llm: makes a real LLM call (costs quota)",
+]

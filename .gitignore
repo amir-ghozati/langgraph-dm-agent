@@ -1,0 +1,37 @@
+# secrets
+.env
+*.pem
+*.key
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# eval output. One run is committed, because a README quoting numbers nobody
+# can inspect is a README quoting numbers. The rest are local noise.
+evals/results/*
+!evals/results/20260829T174308Z/
+
+# source material and working notes — real client work, never committed.
+# Matched by glob rather than by literal filename: the export is named after
+# the client, so spelling it here would commit the name to git history in the
+# one file whose job is to keep it out.
+Insta DM*.json
+ManyChat.json
+prompts/*.raw.md
+LANGGRAPH_PORT_BRIEF*.md
+PHASE0_SOURCE_ANALYSIS.md
+PHASE1_GRAPH_DESIGN.md
+GOLDEN_SET_FILL_INS.md
+DECISIONS.md
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

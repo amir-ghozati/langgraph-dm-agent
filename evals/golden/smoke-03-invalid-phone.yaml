@@ -1,0 +1,45 @@
+id: smoke-03-invalid-phone
+mode: 3
+title: Invalid phone number, three failed attempts
+provenance: generated
+locale: en
+context:
+  today: "2026-03-10"
+  user_timezone: Europe/Berlin
+notes: >
+  Tests phone validation and error recovery across three distinct failure
+  types. A naive system repeats the same generic "invalid number" message
+  each time; a correct system's correction is specific enough to the
+  actual problem that the customer can fix it on the next try.
+turns:
+  - inbound: "hi wanna book that free call"
+    note: cooperative opener that moves straight into booking with no ambiguity, isolates this conversation to the phone-validation test
+  - agent: "[agent responds]"
+  - inbound: "im sarah, free thursday 3pm"
+    note: name, day and time given cleanly in one message, not the target of this test
+  - agent: "[agent responds]"
+  - inbound: "0341 9876543"
+    note: landline-shaped number, German area code with no mobile prefix, tests whether validation catches the landline pattern specifically rather than only checking digit count
+  - agent: "[agent responds]"
+  - inbound: "0151 23456789"
+    note: recognisable German mobile prefix but missing the required country code, tests whether the correction names the actual problem instead of repeating the same generic error
+  - agent: "[agent responds]"
+  - inbound: "ugh fine"
+    note: burst opener signalling irritation before the third attempt
+  - inbound: "0151 23oh4a78"
+    note: third attempt mixes letters into the digit string after two prior rejections, tests whether the agent stays specific and polite rather than issuing a third generic rejection
+expect:
+  final_stage: HANDED_OFF
+  stages_visited: [TRANSITION, SLOT_FILLING, HANDED_OFF]
+  never_stage: [OPENER, VALUE, AWAITING_CONFIRMATION, BOOKED]
+  tools:
+    forbidden: [commit_booking]
+  interrupt: {expected: true}
+  conversation: [no_booking_confirmed]
+  # turns 3 and 4 map cleanly under plain 1-indexed inbound counting either way.
+  # turn 5 only lands on the actual malformed number ("0151 23oh4a78") if the
+  # turn 5 is "ugh fine" (no phone number at all) and the real non_numeric
+  turns:
+    3: [{phone_error_names: landline}]
+    4: [{phone_error_names: missing_country_code}]
+    5: [{phone_error_names: non_numeric}]

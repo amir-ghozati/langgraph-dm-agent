@@ -1,0 +1,54 @@
+id: smoke-06-optout-midfunnel
+mode: 6
+title: Opt-out mid-funnel
+provenance: drafted_by_assistant
+locale: en
+context:
+  today: "2026-03-10"
+  user_timezone: Europe/Berlin
+notes: >
+  The opt-out is informal and indirect, not a keyword like "unsubscribe",
+  so a naive keyword-matching system may not register it as a withdrawal
+  at all. The follow-up message tests whether the agent steers back to
+  booking once the customer re-engages on something unrelated.
+turns:
+  - inbound: "yeah im down for that free call"
+    note: genuine, uncomplicated engagement, establishes that the later opt-out is a real change of mind and not disinterest from the start
+  - agent: "[agent responds]"
+  - inbound: "im leah"
+    note: only the first of four required booking fields is given, slot filling is genuinely underway and not complete when the opt-out happens
+  - agent: "[agent responds]"
+  - inbound: "actually sorry nvm, dont think im ready for this rn"
+    note: informal, indirect opt-out with no stop or unsubscribe keyword, tests whether the agent recognises withdrawal from phrasing alone
+  - agent: "[agent responds]"
+  - inbound: "aight thanks anyway quick random one tho whats good for shin splints"
+    note: customer re-initiates after opting out with an unrelated question rather than booking intent, tests whether the agent resumes the sales pitch instead of answering minimally or acknowledging that they stepped back
+# ASSERTIONS DRAFTED BY THE ASSISTANT, not by the repository owner.
+# The conversation above is unchanged; only the expect: block below is
+# machine-proposed. Same reasoning as `status: draft` on the judge sets (D33):
+# a machine-proposed expectation must not be mistaken for a human's.
+expect:
+  final_stage: OPTED_OUT
+  stages_visited: [TRANSITION, SLOT_FILLING, OPTED_OUT]
+  never_stage: [AWAITING_CONFIRMATION, BOOKED]
+  never_stage_after:
+    OPTED_OUT: [TRANSITION, SLOT_FILLING, AWAITING_CONFIRMATION, BOOKED]
+  tools:
+    forbidden: [commit_booking]
+  interrupt: {expected: false}
+  conversation: [no_booking_confirmed, no_funnel_repitch_after_optout]
+
+  # The Q4 behaviour, asserted at the turn where it matters. never_stage_after
+  # covers the stage machinery; this covers what the agent actually says once
+  # the lead has stepped back.
+  turns:
+    3:
+      - acknowledges_optout
+      - no_consultation_offer
+      - no_slot_request
+    4:
+      # The lead re-initiates with an unrelated question. Answering minimally
+      # is correct; resuming the pitch is the failure.
+      - no_funnel_repitch_after_optout
+      - no_consultation_offer
+      - no_slot_request

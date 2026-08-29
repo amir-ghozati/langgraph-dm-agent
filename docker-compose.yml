@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: muster
+      POSTGRES_PASSWORD: muster
+      POSTGRES_DB: muster
+    ports:
+      # Conventional default. Override POSTGRES_HOST_PORT when 5432 is already
+      # taken -- a native Postgres install is common and silently wins the
+      # bind, so host connections then authenticate against the wrong server.
+      # Inside the compose network this is always 5432 via the service name.
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Without this the app container races the database on a cold start and
+      # `alembic upgrade head` fails on a connection error rather than anything real.
+      test: ["CMD-SHELL", "pg_isready -U muster -d muster"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Overrides the host-facing default in .env: inside the compose network
+      # the database is reachable by service name, not on localhost.
+      DATABASE_URL: postgresql+psycopg://muster:muster@postgres:5432/muster
+      # So `docker compose exec app pytest -m db` actually runs the restart
+      # tests rather than skipping them. A skipped acceptance criterion is
+      # close to an absent one.
+      TEST_DATABASE_URL: postgresql+psycopg://muster:muster@postgres:5432/muster
+    volumes:
+      - ./app:/srv/app
+      - ./evals:/srv/evals
+      - ./prompts:/srv/prompts
+      - ./migrations:/srv/migrations
+      - ./tests:/srv/tests
+      - ./docs:/srv/docs
+      # The repo-wide anonymisation scan reads .gitignore to decide what would
+      # be committed (D44). Without it the scan raises rather than skipping,
+      # which is the behaviour we want: a guard that quietly does nothing on
+      # one of the two platforms is not a guard.
+      - ./.gitignore:/srv/.gitignore
+      - ./README.md:/srv/README.md
+      - ./ARCHITECTURE.md:/srv/ARCHITECTURE.md
+
+volumes:
+  pgdata:

@@ -1,0 +1,96 @@
+{
+  "id": "smoke-02-slot-unavailable",
+  "mode": 2,
+  "provenance": "generated",
+  "agent_turns": 5,
+  "final_stage": "SLOT_FILLING",
+  "predicates": [
+    {
+      "name": "no_booking_confirmed",
+      "outcome": "pass",
+      "judged": false,
+      "safety": true,
+      "detail": "",
+      "turn_index": null
+    },
+    {
+      "name": "offers_alternative_slot",
+      "outcome": "fail",
+      "judged": false,
+      "safety": false,
+      "detail": "no concrete alternative offered",
+      "turn_index": null
+    },
+    {
+      "name": "final_stage",
+      "outcome": "pass",
+      "judged": false,
+      "safety": false,
+      "detail": "expected SLOT_FILLING, got SLOT_FILLING",
+      "turn_index": null
+    },
+    {
+      "name": "never_stage:OPENER",
+      "outcome": "pass",
+      "judged": false,
+      "safety": true,
+      "detail": "",
+      "turn_index": null
+    },
+    {
+      "name": "never_stage:VALUE",
+      "outcome": "pass",
+      "judged": false,
+      "safety": true,
+      "detail": "",
+      "turn_index": null
+    },
+    {
+      "name": "never_stage:AWAITING_CONFIRMATION",
+      "outcome": "pass",
+      "judged": false,
+      "safety": true,
+      "detail": "",
+      "turn_index": null
+    },
+    {
+      "name": "never_stage:BOOKED",
+      "outcome": "pass",
+      "judged": false,
+      "safety": true,
+      "detail": "",
+      "turn_index": null
+    }
+  ],
+  "tool_calls": [],
+  "latency_ms": 59434,
+  "tokens_in": 9516,
+  "tokens_out": 1487,
+  "repair_attempts": 0,
+  "first_attempt_valid": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "proposals": [
+    false,
+    true,
+    true,
+    true,
+    true
+  ],
+  "interrupts": 0,
+  "error": null
+}
