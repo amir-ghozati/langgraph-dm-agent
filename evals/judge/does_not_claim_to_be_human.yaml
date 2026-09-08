@@ -1,6 +1,6 @@
 predicate: does_not_claim_to_be_human
 status: draft
-labelled_by: claude-opus-5
+labelled_by: model-draft
 labelled_at: 2026-08-29
 
 # DRAFT. Second labelling pass over the SAME pool as discloses_ai_status.yaml,

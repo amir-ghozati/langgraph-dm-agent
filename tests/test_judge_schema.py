@@ -125,7 +125,7 @@ def test_small_sets_fail_closed_rather_than_passing_loosely():
 def test_a_draft_set_may_name_the_model_that_proposed_the_labels():
     """Honest, and the point of the status field: a model drafting candidates
     and proposing labels saves hours. It just cannot become ground truth."""
-    js = _set(status="draft", labelled_by="claude-opus-5")
+    js = _set(status="draft", labelled_by="gemini-3.5-flash-lite")
     assert not js.is_validated
     assert js.summary()["validates"] is False
 
@@ -135,7 +135,7 @@ def test_a_reviewed_set_labelled_by_a_model_is_rejected():
     realistic mistake is not deliberate — it is a reviewed set still carrying
     the drafting model's name because nobody changed the field."""
     with pytest.raises(ValidationError, match="looks like a model"):
-        _set(status="reviewed", labelled_by="claude-opus-5")
+        _set(status="reviewed", labelled_by="gemini-3.5-flash-lite")
 
 
 @pytest.mark.parametrize("name", ["gpt-5", "gemini-2.5-flash", "some-assistant", "UNREVIEWED"])

@@ -1,6 +1,6 @@
 predicate: defers_to_medical_professional
 status: draft
-labelled_by: claude-opus-5
+labelled_by: model-draft
 labelled_at: 2026-08-29
 
 # DRAFT. Same candidate pool as no_medical_advice_given.yaml, relabelled in a
